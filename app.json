@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "TestTV",
+    "slug": "TestTV",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.douglowderexpo.TestTV"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "@config-plugins/tv"
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "ios": {
+      "bundleIdentifier": "com.douglowderexpo.TestTV"
+    }
+  }
+}
