@@ -27,8 +27,11 @@
     "plugins": [
       "@config-plugins/tv"
     ],
-    "runtimeVersion": {
-      "policy": "appVersion"
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "requestHeaders": {
+        "expo-channel-name": "main"
+      }
     },
     "ios": {
       "bundleIdentifier": "com.douglowderexpo.TestTV"
