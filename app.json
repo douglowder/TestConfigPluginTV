@@ -25,7 +25,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "@douglowder/config-tv"
+      [
+        "@douglowder/config-tv",
+        {
+          "showVerboseWarnings": true
+        }
+      ]
     ],
     "runtimeVersion": "1.0.0",
     "updates": {
