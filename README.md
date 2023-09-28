@@ -1,4 +1,4 @@
-# TestTV
+# TestConfigPluginTV
 
 A test app to try out `@config-plugins/tv`.
 
