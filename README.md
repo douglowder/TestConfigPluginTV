@@ -2,8 +2,6 @@
 
 A test app to try out `@config-plugins/tv`.
 
-> The plugin has not been released yet. This repo currently uses a testing version named `@douglowder/config-tv`.
-
 Includes code to exercise EAS Update, and show a video using `expo-video`.
 
 ## Quick start
