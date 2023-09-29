@@ -12,7 +12,8 @@
       "android": {
         "buildType": "apk",
         "withoutCredentials": true
-      }
+      },
+      "channel": "base"
     },
     "development": {
       "extends": "base",
@@ -28,7 +29,8 @@
       "extends": "development",
       "env": {
         "EXPO_TV": "1"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "extends": "base",
@@ -38,7 +40,8 @@
       "extends": "preview",
       "env": {
         "EXPO_TV": "1"
-      }
+      },
+      "channel": "preview"
     }
   },
   "submit": {}
