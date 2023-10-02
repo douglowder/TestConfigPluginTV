@@ -6,10 +6,16 @@ import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ResizeMode } from 'expo-av';
 
 export default function App() {
   const video = React.useRef<Video>(null);
-  const [status, setStatus] = useState<any>({});
+  const [status, setStatus] = useState<any>({ isPlaying: false });
+  useEffect(() => {
+    if (video.current !== null) {
+      video.current.pauseAsync();
+    }
+  }, [video.current]);
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.titleText}>Updates JS API test</Text>
@@ -30,7 +36,8 @@ export default function App() {
             uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
           }}
           useNativeControls
-          resizeMode="contain"
+          resizeMode={ResizeMode.CONTAIN}
+          shouldPlay={false}
           isLooping
           onPlaybackStatusUpdate={(s) => setStatus(() => s)}
         />
