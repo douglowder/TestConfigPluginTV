@@ -5,7 +5,14 @@ import { Video } from 'expo-video';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect, useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { ResizeMode } from 'expo-av';
 
 export default function App() {
@@ -20,7 +27,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.titleText}>Updates JS API test</Text>
       <UpdatesStatusView index={1} />
-      <View style={styles.container}>
+      <View style={{ flex: 3, alignItems: 'center' }}>
         <Button
           title={status.isPlaying ? 'Pause' : 'Play'}
           onPress={() =>
@@ -130,21 +137,18 @@ function UpdatesStatusView(props: { index: number }) {
   };
 
   return (
-    <View>
-      <Text>View {props.index}</Text>
-      <Text>{runTypeMessage}</Text>
-      <Text>{checkAutomaticallyMessage}</Text>
-      <Text> </Text>
+    <View style={styles.container}>
       <Text style={styles.titleText}>Status</Text>
       <Text style={styles.updateMessageText}>{updateMessage}</Text>
-      <Button
-        title="Check manually for updates"
-        onPress={handleCheckButtonPress}
-      />
-      {isUpdateAvailable ? (
-        <Button title="Download update" onPress={handleDownloadButtonPress} />
-      ) : null}
-      <StatusBar style="auto" />
+      <View>
+        <Button
+          title="Check manually for updates"
+          onPress={handleCheckButtonPress}
+        />
+        {isUpdateAvailable ? (
+          <Button title="Download update" onPress={handleDownloadButtonPress} />
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -163,43 +167,49 @@ const Button = (props: { title: string; onPress: any }) => {
   );
 };
 
+const scale = Platform.OS === 'ios' && Platform.isTV ? 2 : 1;
+
 const styles = StyleSheet.create({
   video: {
-    flex: 1,
-    width: 960,
-    height: 512,
+    flex: 3,
+    width: 480 * scale,
+    height: 256 * scale,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 100,
+    marginBottom: 50 * scale,
   },
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
+    margin: 5 * scale,
+    width: 200 * scale,
+    paddingVertical: 6 * scale,
+    paddingHorizontal: 16 * scale,
+    borderRadius: 2 * scale,
     elevation: 3,
     backgroundColor: '#4630EB',
   },
   buttonText: {
     color: 'white',
+    fontSize: 10 * scale,
   },
   updateMessageText: {
-    margin: 10,
-    height: 100,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    width: 250,
+    margin: 5 * scale,
+    height: 20 * scale,
+    paddingVertical: 2 * scale,
+    paddingHorizontal: 10 * scale,
+    width: 480 * scale,
     borderColor: '#4630EB',
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: 2 * scale,
+    fontSize: 10 * scale,
   },
   titleText: {
     fontWeight: 'bold',
@@ -220,13 +230,5 @@ const delay = (timeout: number) => {
 };
 
 const manifestToString = (manifest?: any) => {
-  return manifest
-    ? JSON.stringify(
-        {
-          id: manifest.id,
-        },
-        null,
-        2,
-      )
-    : 'null';
+  return `id = ${manifest?.id ?? ''}`;
 };
