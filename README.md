@@ -1,6 +1,6 @@
 # TestConfigPluginTV
 
-A test app to try out `@config-plugins/tv`.
+A test app to try out `@react-native-tvos/config-tv`.
 
 Includes code to exercise EAS Update, and show a video using `expo-video`.
 
@@ -55,7 +55,7 @@ eas build -e preview_tv -p android
 
 There are also profiles to build development apps for TV that can run against the packager with `npx expo start`.
 
-# @config-plugins/tv
+# [@react-native-tvos/config-tv](https://github.com/react-native-tvos/config-tv)
 
 Expo Config Plugin to auto-configure the native directories for TV
 
@@ -68,7 +68,7 @@ This package cannot be used in the "Expo Go" app because Expo Go does not suppor
 - First install the package with yarn, npm, or [`npx expo install`](https://docs.expo.io/workflow/expo-cli/#expo-install).
 
 ```sh
-npx expo install tv @config-plugins/tv
+npx expo install tv @react-native-tvos/config-tv
 ```
 
 After installing this npm package, add the [config plugin](https://docs.expo.io/guides/config-plugins/) to the [`plugins`](https://docs.expo.io/versions/latest/config/app/#plugins) array of your `app.json` or `app.config.js`:
@@ -76,7 +76,7 @@ After installing this npm package, add the [config plugin](https://docs.expo.io/
 ```json
 {
   "expo": {
-    "plugins": ["@config-plugins/tv"]
+    "plugins": ["@react-native-tvos/config-tv"]
   }
 }
 ```
@@ -88,7 +88,7 @@ or
   "expo": {
     "plugins": [
       [
-        "@config-plugins/tv",
+        "@react-native-tvos/config-tv",
         {
           "isTV": true,
           "showVerboseWarnings": false

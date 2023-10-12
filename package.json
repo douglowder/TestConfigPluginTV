@@ -10,7 +10,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@config-plugins/tv": "^0.0.1",
+    "@react-native-tvos/config-tv": "^0.0.1",
     "expo": "50.0.0-alpha.5",
     "expo-av": "~13.7.0",
     "expo-splash-screen": "~0.23.0",
