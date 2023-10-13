@@ -22,10 +22,10 @@ index e09e422..8bfae23 100644
  end
 diff --git a/node_modules/expo-av/ios/EXAV/EXAVTV.m b/node_modules/expo-av/ios/EXAV/EXAVTV.m
 new file mode 100644
-index 0000000..e05d752
+index 0000000..ab8591e
 --- /dev/null
 +++ b/node_modules/expo-av/ios/EXAV/EXAVTV.m
-@@ -0,0 +1,782 @@
+@@ -0,0 +1,757 @@
 +// Copyright 2017-present 650 Industries. All rights reserved.
 +
 +#import <AVFoundation/AVFoundation.h>
@@ -42,21 +42,6 @@ index 0000000..e05d752
 +#import <EXAV/EXAVPlayerData.h>
 +#import <EXAV/EXVideoView.h>
 +#import <EXAV/EXAV+AudioSampleCallback.h>
-+
-+NSString *const EXAudioRecordingOptionsIsMeteringEnabledKey = @"isMeteringEnabled";
-+NSString *const EXAudioRecordingOptionsKeepAudioActiveHintKey = @"keepAudioActiveHint";
-+NSString *const EXAudioRecordingOptionsKey = @"ios";
-+NSString *const EXAudioRecordingOptionExtensionKey = @"extension";
-+NSString *const EXAudioRecordingOptionOutputFormatKey = @"outputFormat";
-+NSString *const EXAudioRecordingOptionAudioQualityKey = @"audioQuality";
-+NSString *const EXAudioRecordingOptionSampleRateKey = @"sampleRate";
-+NSString *const EXAudioRecordingOptionNumberOfChannelsKey = @"numberOfChannels";
-+NSString *const EXAudioRecordingOptionBitRateKey = @"bitRate";
-+NSString *const EXAudioRecordingOptionBitRateStrategyKey = @"bitRateStrategy";
-+NSString *const EXAudioRecordingOptionBitDepthHintKey = @"bitDepthHint";
-+NSString *const EXAudioRecordingOptionLinearPCMBitDepthKey = @"linearPCMBitDepth";
-+NSString *const EXAudioRecordingOptionLinearPCMIsBigEndianKey = @"linearPCMIsBigEndian";
-+NSString *const EXAudioRecordingOptionLinearPCMIsFloatKey = @"linearPCMIsFloat";
 +
 +NSString *const EXDidUpdatePlaybackStatusEventName = @"didUpdatePlaybackStatus";
 +
@@ -75,7 +60,6 @@ index 0000000..e05d752
 +
 +@property (nonatomic, assign) EXAudioInterruptionMode audioInterruptionMode;
 +@property (nonatomic, assign) BOOL playsInSilentMode;
-+@property (nonatomic, assign) BOOL allowsAudioRecording;
 +@property (nonatomic, assign) BOOL staysActiveInBackground;
 +
 +@property (nonatomic, assign) int soundDictionaryKeyCount;
@@ -100,7 +84,6 @@ index 0000000..e05d752
 +
 +    _audioInterruptionMode = EXAudioInterruptionModeMixWithOthers;
 +    _playsInSilentMode = false;
-+    _allowsAudioRecording = false;
 +    _staysActiveInBackground = false;
 +
 +    _soundDictionaryKeyCount = 0;
@@ -255,19 +238,15 @@ index 0000000..e05d752
 +{
 +  BOOL playsInSilentMode = ((NSNumber *)mode[@"playsInSilentModeIOS"]).boolValue;
 +  EXAudioInterruptionMode interruptionMode = ((NSNumber *)mode[@"interruptionModeIOS"]).intValue;
-+  BOOL allowsRecording = ((NSNumber *)mode[@"allowsRecordingIOS"]).boolValue;
 +  BOOL shouldPlayInBackground = ((NSNumber *)mode[@"staysActiveInBackground"]).boolValue;
 +
 +  if (!playsInSilentMode && interruptionMode == EXAudioInterruptionModeDuckOthers) {
 +    return EXErrorWithMessage(@"Impossible audio mode: playsInSilentMode == false and duckOthers == true cannot be set on iOS.");
-+  } else if (!playsInSilentMode && allowsRecording) {
-+    return EXErrorWithMessage(@"Impossible audio mode: playsInSilentMode == false and allowsRecording == true cannot be set on iOS.");
 +  } else if (!playsInSilentMode && shouldPlayInBackground) {
 +    return EXErrorWithMessage(@"Impossible audio mode: playsInSilentMode == false and staysActiveInBackground == true cannot be set on iOS.");
 +  } else {
 +    _playsInSilentMode = playsInSilentMode;
 +    _audioInterruptionMode = interruptionMode;
-+    _allowsAudioRecording = false;
 +    _staysActiveInBackground = shouldPlayInBackground;
 +
 +    if (_currentAudioSessionMode != EXAVAudioSessionModeInactive) {
@@ -291,7 +270,7 @@ index 0000000..e05d752
 +    }
 +  } else {
 +    EXAudioInterruptionMode activeInterruptionMode = audioSessionMode == EXAVAudioSessionModeActiveMuted ? EXAudioInterruptionModeMixWithOthers : _audioInterruptionMode;
-+    NSString *category = _allowsAudioRecording ? AVAudioSessionCategoryPlayAndRecord : AVAudioSessionCategoryPlayback;
++    NSString *category = AVAudioSessionCategoryPlayback;
 +    requiredAudioCategory = category;
 +    switch (activeInterruptionMode) {
 +      case EXAudioInterruptionModeDoNotMix:
@@ -413,6 +392,12 @@ index 0000000..e05d752
 +  }];
 +}
 +
++- (void)handleMediaServicesReset:(NSNotification *)notification
++{
++  // See here: https://developer.apple.com/library/content/qa/qa1749/_index.html
++  // (this is an unlikely notification to receive, but best practices suggests that we catch it just in case)
++}
++
 +#pragma mark - Internal sound playback helper methods
 +
 +- (void)_runBlock:(void (^)(EXAVPlayerData *data))block
@@ -486,17 +471,7 @@ index 0000000..e05d752
 +
 +- (NSDictionary<NSString *, NSString *> *)_getAVKeysForRecordingOptionsKeys:(NSString *)bitRateStrategy
 +{
-+  return @{EXAudioRecordingOptionOutputFormatKey: AVFormatIDKey,
-+           EXAudioRecordingOptionAudioQualityKey:
-+             bitRateStrategy == AVAudioBitRateStrategy_Variable
-+           ? AVEncoderAudioQualityForVBRKey : AVEncoderAudioQualityKey,
-+           EXAudioRecordingOptionSampleRateKey: AVSampleRateKey,
-+           EXAudioRecordingOptionNumberOfChannelsKey: AVNumberOfChannelsKey,
-+           EXAudioRecordingOptionBitRateKey: AVEncoderBitRateKey,
-+           EXAudioRecordingOptionBitDepthHintKey: AVEncoderBitDepthHintKey,
-+           EXAudioRecordingOptionLinearPCMBitDepthKey: AVLinearPCMBitDepthKey,
-+           EXAudioRecordingOptionLinearPCMIsBigEndianKey: AVLinearPCMIsBigEndianKey,
-+           EXAudioRecordingOptionLinearPCMIsFloatKey: AVLinearPCMIsFloatKey};
++  return @{};
 +}
 +
 +- (UInt32)_getFormatIDFromString:(NSString *)typeString
