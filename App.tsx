@@ -1,7 +1,7 @@
 /**
  * Test app that shows some features of the Updates API
  */
-import { Video } from 'expo-video';
+import { Video } from 'expo-av';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect, useState } from 'react';
