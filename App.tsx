@@ -2,7 +2,7 @@
  * Test app that shows some features of the Updates API
  */
 import { Video } from 'expo-av';
-import { StatusBar } from 'expo-status-bar';
+import { Image } from 'expo-image';
 import * as Updates from 'expo-updates';
 import React, { useEffect, useState } from 'react';
 import {
@@ -15,6 +15,9 @@ import {
 } from 'react-native';
 import { ResizeMode } from 'expo-av';
 
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
 export default function App() {
   const video = React.useRef<Video>(null);
   const [status, setStatus] = useState<any>({ isPlaying: false });
@@ -26,6 +29,13 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.titleText}>Updates JS API test</Text>
+      <Image
+        style={styles.image}
+        source="https://picsum.photos/seed/696/3000/2000"
+        placeholder={blurhash}
+        contentFit="cover"
+        transition={1000}
+      />
       <UpdatesStatusView index={1} />
       <View style={{ flex: 3, alignItems: 'center' }}>
         <Button
@@ -213,6 +223,11 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: 'bold',
+  },
+  image: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#0553',
   },
 });
 

@@ -1,0 +1,121 @@
+diff --git a/node_modules/expo-image/ios/ExpoImage.podspec b/node_modules/expo-image/ios/ExpoImage.podspec
+index 95c86bc..03b1787 100644
+--- a/node_modules/expo-image/ios/ExpoImage.podspec
++++ b/node_modules/expo-image/ios/ExpoImage.podspec
+@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
+   s.license        = package['license']
+   s.author         = package['author']
+   s.homepage       = package['homepage']
+-  s.platform       = :ios, '13.0'
++  s.platforms       = { :ios => '13.0', :tvos => '13.0'}
+   s.swift_version  = '5.4'
+   s.source         = { git: 'https://github.com/expo/expo.git' }
+   s.static_framework = true
+diff --git a/node_modules/expo-image/ios/ImageModule.swift b/node_modules/expo-image/ios/ImageModule.swift
+index f862fc8..6d26cee 100644
+--- a/node_modules/expo-image/ios/ImageModule.swift
++++ b/node_modules/expo-image/ios/ImageModule.swift
+@@ -70,7 +70,9 @@ public final class ImageModule: Module {
+       }
+ 
+       Prop("enableLiveTextInteraction") { (view, enableLiveTextInteraction: Bool?) in
++        #if !os(tvOS)
+         view.enableLiveTextInteraction = enableLiveTextInteraction ?? false
++        #endif
+       }
+ 
+       Prop("accessible") { (view, accessible: Bool?) in
+@@ -107,7 +109,7 @@ public final class ImageModule: Module {
+   }
+ 
+   static func registerCoders() {
+-    if #available(iOS 14.0, *) {
++    if #available(iOS 14.0, tvOS 14.0, *) {
+       // By default Animated WebP is not supported
+       SDImageCodersManager.shared.addCoder(SDImageAWebPCoder.shared)
+     } else {
+diff --git a/node_modules/expo-image/ios/ImageView.swift b/node_modules/expo-image/ios/ImageView.swift
+index 0ce89bd..e0c90e5 100644
+--- a/node_modules/expo-image/ios/ImageView.swift
++++ b/node_modules/expo-image/ios/ImageView.swift
+@@ -2,7 +2,9 @@
+ 
+ import SDWebImage
+ import ExpoModulesCore
++#if !os(tvOS)
+ import VisionKit
++#endif
+ 
+ typealias SDWebImageContext = [SDWebImageContextOption: Any]
+ 
+@@ -374,9 +376,11 @@ public final class ImageView: ExpoView {
+       sdImageView.image = image
+     }
+ 
++    #if !os(tvOS)
+     if enableLiveTextInteraction {
+       analyzeImage()
+     }
++    #endif
+   }
+ 
+   // MARK: - Helpers
+@@ -416,7 +420,7 @@ public final class ImageView: ExpoView {
+   }
+ 
+   // MARK: - Live Text Interaction
+-
++  #if !os(tvOS)
+   @available(iOS 16.0, macCatalyst 17.0, *)
+   static let imageAnalyzer = ImageAnalyzer.isSupported ? ImageAnalyzer() : nil
+ 
+@@ -466,4 +470,5 @@ public final class ImageView: ExpoView {
+     }
+     return interaction as? ImageAnalysisInteraction
+   }
++  #endif
+ }
+diff --git a/node_modules/expo-image/ios/Loaders/PhotoLibraryAssetLoader.swift b/node_modules/expo-image/ios/Loaders/PhotoLibraryAssetLoader.swift
+index 7f1f7c4..41a7cd2 100644
+--- a/node_modules/expo-image/ios/Loaders/PhotoLibraryAssetLoader.swift
++++ b/node_modules/expo-image/ios/Loaders/PhotoLibraryAssetLoader.swift
+@@ -77,12 +77,11 @@ private func assetLocalIdentifier(fromUrl url: URL) -> String? {
+  Checks whether the app is authorized to read the Photo Library.
+  */
+ private func isPhotoLibraryStatusAuthorized() -> Bool {
+-  if #available(iOS 14, *) {
++  if #available(iOS 14, tvOS 14, *) {
+     let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+     return status == .authorized || status == .limited
+-  } else {
+-    return PHPhotoLibrary.authorizationStatus() == .authorized
+   }
++  return PHPhotoLibrary.authorizationStatus() == .authorized
+ }
+ 
+ /**
+diff --git a/node_modules/expo-image/ios/Thumbhash.swift b/node_modules/expo-image/ios/Thumbhash.swift
+index 804349e..c2da2b7 100644
+--- a/node_modules/expo-image/ios/Thumbhash.swift
++++ b/node_modules/expo-image/ios/Thumbhash.swift
+@@ -456,7 +456,7 @@ func thumbHashToApproximateAspectRatio(hash: Data) -> Float32 {
+   return Float32(lx) / Float32(ly)
+ }
+ 
+-#if os(iOS)
++#if os(iOS) || os(tvOS)
+ import UIKit
+ 
+ func thumbHash(fromImage: UIImage) -> Data {
+diff --git a/node_modules/expo-image/ios/ThumbhashLoader.swift b/node_modules/expo-image/ios/ThumbhashLoader.swift
+index b757dfd..47f0517 100644
+--- a/node_modules/expo-image/ios/ThumbhashLoader.swift
++++ b/node_modules/expo-image/ios/ThumbhashLoader.swift
+@@ -20,7 +20,6 @@ class ThumbhashLoader: NSObject, SDImageLoader {
+       completedBlock?(nil, nil, error, false)
+       return nil
+     }
+-
+     // The URI looks like this: thumbhash:/3OcRJYB4d3h\iIeHeEh3eIhw+j2w
+     // ThumbHash may include slashes which could break the structure of the URL, so we replace them
+     // with backslashes on the JS side and revert them back to slashes here, before generating the image.
